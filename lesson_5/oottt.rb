@@ -16,7 +16,7 @@ class Board
   end
   
   def unmarked_keys
-    @squares.select {|k, v| v.unmarked? }.keys
+    @squares.select {|_, sq| sq.unmarked? }.keys
   end
 
 end
@@ -33,9 +33,7 @@ class Square
   end
   
   def unmarked?
-    return true if @marker == Board::INITIAL_MARKER
-    return false if @marker == TTTGame::HUMAN_MARKER
-    return false if @marker == TTTGame::COMPUTER_MARKER
+    @marker == Board::INITIAL_MARKER
   end
 end
 
