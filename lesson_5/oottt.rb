@@ -278,9 +278,13 @@ class TTTGame
 
     if !square
       square = board.find_at_risk_square
-    elsif !square && board.unmarked_keys.include?(5)
+    end
+
+    if !square && board.unmarked_keys.include?(5)
       square = 5
-    elsif !square
+    end
+
+    if !square
       square = board.link_squares
     end
 
