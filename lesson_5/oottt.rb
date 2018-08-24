@@ -36,7 +36,6 @@ class Board
     nil
   end
 
-  # rubocop:disable Metrics/LineLength
   def find_at_risk_square
     square = nil
 
@@ -84,19 +83,18 @@ class Board
 
   def one_computer_marker?(squares)
     markers = squares.select(&:marked?).collect(&:marker)
-    markers.count(TTTGame::COMPUTER_MARKER) == 1 && markers.count(Square::INITIAL_MARKER) == 2
+    markers.count(TTTGame::COMPUTER_MARKER) == 1
   end
 
   def two_human_markers?(squares)
     markers = squares.select(&:marked?).collect(&:marker)
-    markers.count(TTTGame::HUMAN_MARKER) == 2 && markers.count(Square::INITIAL_MARKER) == 1
+    markers.count(TTTGame::HUMAN_MARKER) == 2
   end
 
   def two_computer_markers?(squares)
     markers = squares.select(&:marked?).collect(&:marker)
-    markers.count(TTTGame::COMPUTER_MARKER) == 2 && markers.count(Square::INITIAL_MARKER) == 1
+    markers.count(TTTGame::COMPUTER_MARKER) == 2
   end
-  # rubocop:enable Metrics/LineLength
 
   def reset
     (1..9).each { |key| @squares[key] = Square.new }
@@ -179,13 +177,7 @@ class TTTGame
 
     loop do
       display_board
-
-      loop do
-        current_player_moves
-        break if board.someone_won? || board.full?
-        clear_screen_and_display_board
-      end
-
+      play_round
       display_result
       five_game_winner
       break unless play_again?
@@ -210,8 +202,7 @@ class TTTGame
   def choose_first_player
     answer = nil
     loop do
-      puts "Do you want to move first, or for the computer to go first? Type " \
-         "'me', 'computer', or nothing, and press enter."
+      puts "Who goes first? Type 'me', 'computer', or nothing, and press enter."
       answer = gets.chomp.downcase
       break if ['me', 'computer', ''].include?(answer)
       puts "That is not a valid reply, please try again."
@@ -230,6 +221,14 @@ class TTTGame
   def clear_screen_and_display_board
     clear
     display_board
+  end
+
+  def play_round
+    loop do
+      current_player_moves
+      break if board.someone_won? || board.full?
+      clear_screen_and_display_board
+    end
   end
 
   def display_board
