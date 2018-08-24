@@ -202,7 +202,7 @@ class TTTGame
   def choose_first_player
     answer = nil
     loop do
-      puts "Who goes first? Type 'me', 'computer', or nothing, and press enter."
+      puts "Who goes first? Type 'me', 'computer', or nothing, & press enter."
       answer = gets.chomp.downcase
       break if ['me', 'computer', ''].include?(answer)
       puts "That is not a valid reply, please try again."
