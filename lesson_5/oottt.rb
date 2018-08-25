@@ -36,13 +36,17 @@ class Board
     nil
   end
 
+  def blank_square(array)
+    @squares.select { |k, v| array.include?(k) && v.marker == Square::INITIAL_MARKER }.keys.first
+  end
+
   def find_at_risk_square
     square = nil
 
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if two_human_markers?(squares)
-        square = @squares.select { |k, v| line.include?(k) && v.marker == Square::INITIAL_MARKER }.keys.first
+        square = blank_square(line)
         break
       else
         square = nil
@@ -57,7 +61,7 @@ class Board
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if two_computer_markers?(squares)
-        square = @squares.select { |k, v| line.include?(k) && v.marker == Square::INITIAL_MARKER }.keys.first
+        square = blank_square(line)
         break
       else
         square = nil
@@ -72,7 +76,7 @@ class Board
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if one_computer_marker?(squares)
-        square = @squares.select { |k, v| line.include?(k) && v.marker == Square::INITIAL_MARKER }.keys.sample
+        square = blank_square(line)
         break
       else
         square = nil
@@ -120,7 +124,7 @@ class Board
 
   def three_identical_markers?(squares)
     markers = squares.select(&:marked?).collect(&:marker)
-    return false if markers.size != 3
+    return false unless markers.size == 3
     markers.min == markers.max
   end
 end
@@ -159,6 +163,7 @@ class TTTGame
   HUMAN_MARKER = "X"
   COMPUTER_MARKER = "O"
   FIRST_TO_MOVE = HUMAN_MARKER
+  MATCH_WIN_SCORE = 5
 
   attr_reader :board, :human, :computer
 
@@ -167,7 +172,7 @@ class TTTGame
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
     @current_marker = FIRST_TO_MOVE
-    @five_games = [[], []]
+    @match_scores = { human: 0, computer: 0 }
   end
 
   def play
@@ -192,6 +197,7 @@ class TTTGame
 
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
+    puts "First to win 5 games wins the match!"
     puts ""
   end
 
@@ -336,22 +342,26 @@ class TTTGame
 
   def five_game_count
     if board.winning_marker == HUMAN_MARKER
-      @five_games[0].push(board.winning_marker)
+      @match_scores[:human] += 1
     elsif board.winning_marker == COMPUTER_MARKER
-      @five_games[1].push(board.winning_marker)
+      @match_scores[:computer] += 1
     end
+    puts ""
+    puts "Match scores-- \
+          You: #{@match_scores[:human]}, Computer: #{@match_scores[:computer]}."
+    puts ""
   end
 
   def reset_game_count
-    @five_games = [[], []]
+    @match_scores = { human: 0, computer: 0 }
   end
 
   def five_game_winner
     five_game_count
-    if @five_games[0].length == 5
+    if @match_scores[:human] == MATCH_WIN_SCORE
       puts "You won five games!"
       reset_game_count
-    elsif @five_games[1].length == 5
+    elsif @match_scores[:computer] == MATCH_WIN_SCORE
       puts "Computer won five games!"
       reset_game_count
     end
