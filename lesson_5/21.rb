@@ -80,7 +80,7 @@ class Player < Participant
     loop do
       puts "What is your name?"
       input = gets.chomp.capitalize
-      break if !input.empty?
+      break if (input.match("[a-zA-Z]+"))
       puts "Please type your name."
     end
     self.name = input
@@ -98,7 +98,7 @@ class Dealer < Participant
   end
 
   def choose_action
-    self.action = if twenty_one? == true
+    self.action = if twenty_one?
                     'stay'
                   elsif value_total < 16
                     'hit'
@@ -162,10 +162,10 @@ class TwentyOne
       deal_cards
       show_flop
       player_turn
-      if player_loss == false
+      unless player.bust?
         dealer_turn
       end
-      winner
+      display_winner
       break unless play_again?
       reset
     end
@@ -231,23 +231,34 @@ class TwentyOne
     end
   end
 
-  def player_loss
+  def player_loss?
     player.value_total < dealer.value_total
   end
 
-  def dealer_loss
+  def dealer_loss?
     player.value_total > dealer.value_total
   end
 
-  def winner
+  def display_winner
     show_both_hands
-    if player.bust? || player_loss
+    show_scores
+    if player.bust?
+      puts "#{player.name} busted! Dealer #{dealer.name} wins."
+    elsif dealer.bust?
+      puts "Dealer #{dealer.name} busted! #{player.name} wins."
+    elsif player_loss?
       puts "Dealer #{dealer.name} wins the hand."
-    elsif dealer.bust? || dealer_loss
+    elsif dealer_loss?
       puts "#{player.name} wins the hand!"
     else
       puts "It's a push!"
     end
+    puts ""
+  end
+
+  def show_scores
+    puts "#{player.name}'s hand equals #{player.value_total} points. "
+    puts "Dealer #{dealer.name}'s hand equals #{dealer.value_total} points."
     puts ""
   end
 
@@ -259,7 +270,7 @@ class TwentyOne
       break if ['y', 'n'].include?(answer)
       puts "Please type y or n."
     end
-    return true if answer == 'y'
+    answer == 'y'
   end
 
   def reset
